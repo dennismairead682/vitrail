@@ -1,0 +1,10 @@
+vol_stem: 44
+vol_stages: [44, 88, 176, 288, 352]
+vol_blocks: 2
+surf_width: 320
+surf_depth: 3
+embed_dim: 352
+proj_dim: 256
+fusion_heads: 4
+fusion_dropout: 0.0
+use_fusion: true

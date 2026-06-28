@@ -1,0 +1,11 @@
+tag: supplementary_label_efficiency
+
+task:
+  name: seg_cbct
+  head_lr: 1.0e-5
+  encoder_lr: 2.0e-7
+  epochs: 600
+  micro_batch: 2
+  grad_accum: 16
+  dice_weight: 0.5
+  early_stop_patience: 40

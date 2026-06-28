@@ -1,0 +1,18 @@
+# Source collections for the coupled CBCT-IOS encoder.
+# Each line: tag | role | license | url
+# Verified reachable June 2026. Access-gated collections are tagged [request].
+
+teeth3ds_plus      | ios-segmentation (Tunisia)     | CC-BY-SA-4.0 | https://crns-smartvision.github.io/teeth3ds/
+teeth3ds_plus_osf  | ios-segmentation mirror        | CC-BY-SA-4.0 | https://osf.io/xctdy/
+toothfairy2        | cbct multi-structure (Italy)   | CC-BY-4.0    | https://toothfairy2.grand-challenge.org/
+paired_cbct_ios    | fusion / reconstruction (China)| CC-BY-4.0    | https://figshare.com/articles/dataset/paired_CBCT_IOS/26965903
+paired_cbct_ios_doi| fusion / reconstruction (China)| CC-BY-4.0    | https://doi.org/10.6084/m9.figshare.26965903
+mmdental           | auxiliary cbct pretraining     | CC-BY-4.0    | https://doi.org/10.6084/m9.figshare.28505276
+mmdental_descriptor| dataset descriptor             | CC-BY-4.0    | https://www.nature.com/articles/s41597-025-05398-7
+ctooth             | auxiliary cbct pretraining     | request      | https://github.com/liangjiubujiu/CTooth
+
+# Notes
+# - paired_cbct_ios: figshare returns HTTP 403 to automated agents; the DOI resolves in a browser.
+# - ctooth / ctooth+: repository is public; volume download is granted by the maintainers on request.
+# - the landmark-based co-registration shipped with paired_cbct_ios is used only as the distance
+#   reference frame at evaluation time and never enters the model input.

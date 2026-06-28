@@ -1,0 +1,10 @@
+name: teeth3ds_plus
+region: tunisia
+modality: ios
+task: seg_ios
+scans: 1800
+arches_per_subject: 2
+teeth_labelled: 23999
+license: CC-BY-SA-4.0
+native_metric: ios_dice
+held_out: 600

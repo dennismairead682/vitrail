@@ -1,0 +1,5 @@
+tag: ablation_no_modality_dropout
+
+regimen:
+  modality_dropout: 0.0
+  dropout_onset: 0

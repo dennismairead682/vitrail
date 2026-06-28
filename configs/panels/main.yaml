@@ -1,0 +1,47 @@
+tag: main
+
+glass:
+  voxel_mm: 0.30
+  patch: [128, 128, 128]
+  cbct_classes: 42
+  fdi_classes: 33
+  region_slots: 32
+  surface_feats: 7
+  points_per_region: 256
+  mask_ratio: 0.6
+  intensity_clip: [-1000.0, 3000.0]
+
+cartoon:
+  vol_stem: 44
+  vol_stages: [44, 88, 176, 288, 352]
+  vol_blocks: 2
+  surf_width: 320
+  surf_depth: 3
+  embed_dim: 352
+  proj_dim: 256
+  fusion_heads: 4
+  fusion_dropout: 0.0
+  use_fusion: true
+
+regimen:
+  world_size: 8
+  precision: fp32
+  amp: false
+  micro_batch: 2
+  grad_accum: 64
+  epochs: 4000
+  warmup_epochs: 200
+  lr: 2.0e-7
+  weight_decay: 0.05
+  betas: [0.9, 0.999]
+  grad_clip: 1.0
+  scheduler: cosine
+  temperature_init: 0.07
+  modality_dropout: 0.25
+  dropout_onset: 400
+  lambdas:
+    xm: 1.0
+    rec: 0.5
+    cons: 0.3
+  ema_decay: 0.999
+  seed: 20259

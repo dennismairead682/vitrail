@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vitrail"
+version = "0.4.1"
+description = "Registration-free CBCT-IOS coupled encoder with lightweight per-task lights"
+requires-python = "==3.9.*"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "torch==2.0.1",
+    "numpy==1.24.4",
+    "scipy==1.10.1",
+    "scikit-learn==1.3.2",
+    "PyYAML==6.0.1",
+    "pydantic==2.5.3",
+    "pydantic-settings==2.1.0",
+    "onnx==1.15.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.4",
+    "ruff==0.1.14",
+    "black==23.12.1",
+    "isort==5.13.2",
+    "mypy==1.8.0",
+    "pre-commit==3.6.0",
+]
+
+[project.scripts]
+vitrail = "vitrail.studio.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["vitrail"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+src = ["src", "tracings"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+ignore = ["B008", "UP007"]
+
+[tool.ruff.lint.per-file-ignores]
+"tracings/*" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+disable_error_code = ["no-any-return", "no-untyped-call", "type-arg"]
+
+[[tool.mypy.overrides]]
+module = ["torch.*", "scipy.*", "onnx.*", "yaml.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tracings"]
+pythonpath = ["src"]

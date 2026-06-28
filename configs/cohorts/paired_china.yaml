@@ -1,0 +1,11 @@
+name: paired_cbct_ios
+region: china
+modality: paired
+task: fusion
+pairs: 289
+screened_from: 300
+age_range: [19, 28]
+license: CC-BY-4.0
+native_metric: fusion_assd_mm
+held_out: 60
+registration_use: evaluation_reference_only

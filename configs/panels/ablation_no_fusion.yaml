@@ -1,0 +1,4 @@
+tag: ablation_no_fusion
+
+cartoon:
+  use_fusion: false

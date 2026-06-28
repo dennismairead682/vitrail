@@ -1,0 +1,127 @@
+vitrail
+=======
+
+A coupled CBCT-IOS encoder that carries one set of weights across four dental
+tasks. A volumetric stream reads the cone-beam volume, a surface stream reads the
+intraoral mesh as per-tooth regional tokens, and a lead-came cross-attention block
+joins the two without a registration step. Four lightweight lights hang off the
+shared field: 42-class CBCT segmentation, per-vertex IOS tooth labelling,
+CBCT-IOS fusion / tooth-bone reconstruction, and implant-fixture detection.
+
+The pretraining objective pulls FDI-matched teeth together across the two
+modalities (InfoNCE), reconstructs masked volume blocks, and holds the volumetric
+field steady when the surface stream is dropped.
+
+
+bench layout
+------------
+
+  src/vitrail/atelier    seeds, logging, pydantic config schema, checkpoint panes
+  src/vitrail/cutline    volume patches, surface tokenisation, the planted cohort
+  src/vitrail/cartoon    volumetric encoder, surface encoder, projection, coupling
+  src/vitrail/leading    the cross-attention came (Eq. 2)
+  src/vitrail/soldering  InfoNCE / masked recon / consistency / segmentation losses
+  src/vitrail/lights     the four task heads and the multi-task window
+  src/vitrail/lightbox   Dice / mIoU / HD95 / ASSD / Chamfer, ECE, DeLong, Holm
+  src/vitrail/bench      Algorithm 1 pretraining, Algorithm 2 fine-tuning, EMA, DDP
+  src/vitrail/studio     command line: pretrain, finetune, appraise, etch
+
+Configuration is layered pydantic. A panel file under configs/panels is one full
+TopConfig; component fragments under configs/encoder, configs/regimen and
+configs/cohorts document the pieces. Runtime knobs (device, worker count, output
+directory) come from VITRAIL_* environment variables or the --device / --out-dir
+flags.
+
+
+raising the bench
+-----------------
+
+  python -m pip install -r requirements.txt
+  python -m pip install --no-deps -e .
+
+conda:
+
+  conda env create -f environment.yml
+  conda activate vitrail
+
+container:
+
+  docker build -t vitrail .
+  docker run --gpus all vitrail pretrain --config configs/panels/main.yaml
+
+
+glass
+-----
+
+Collections, roles and licenses live in glass-sources.txt; benchwork/gather_glass.sh
+prints the resolution list. Three evaluation cohorts (Teeth3DS+, Tunisia, IOS;
+ToothFairy2, Italy, CBCT; paired CBCT-IOS, China, fusion) plus the MMDental and
+CTooth auxiliary CBCT corpora. The landmark co-registration that ships with the
+paired collection is used only as the distance reference frame at scoring time and
+never reaches the model. Volume voxels are resampled to 0.30 mm and read as 128^3
+patches; surfaces are grouped into 32 FDI region slots of 256 points each.
+
+
+pretraining
+-----------
+
+  bash benchwork/raise_panel.sh                       # 8-GPU torchrun, main panel
+  python -m vitrail.studio pretrain --config configs/panels/main.yaml --device cuda
+
+Writes runs/main_encoder.pane (atomic; the pane stores the seed and is restored on
+resume).
+
+
+fine-tuning and reading the lights
+----------------------------------
+
+  python -m vitrail.studio finetune --config configs/panels/main.yaml \
+      --task seg_cbct --pretrained runs/main_encoder.pane --device cuda
+
+  python -m vitrail.studio appraise --config configs/panels/main.yaml \
+      --task seg_cbct --pane runs/main_seg_cbct.pane --device cuda
+
+Task ids: seg_cbct, seg_ios, fusion, implant. Targets from the manuscript, scored on
+the held-out split of each cohort:
+
+  seg_cbct   ToothFairy2 mean Dice 0.9312 +/- 0.004, tooth Dice 0.943, HD95 14.8 mm
+  seg_ios    Teeth3DS+ Dice 98.74 +/- 0.22, mIoU 78.9 +/- 0.4
+  fusion     paired-China ASSD 0.122 +/- 0.010 mm, Chamfer-L1 0.076 +/- 0.005
+  implant    ToothFairy2 implant-class proxy Dice 53.1 +/- 1.4; external Dice 44.6 +/- 2.4
+
+Ablations are separate panels: ablation_no_crossmodal, ablation_no_fusion,
+ablation_no_modality_dropout.
+
+
+etching the encoder
+-------------------
+
+  python -m vitrail.studio etch --config configs/panels/main.yaml \
+      --pane runs/main_encoder.pane --out runs/encoder.onnx
+
+Exports the volumetric stream (volume -> dense field) at opset 17 with a dynamic
+batch axis.
+
+
+compute budget
+--------------
+
+The reported numbers come from 8x A100-80GB in fp32 with no automatic mixed
+precision. Effective batch is micro_batch 2 x grad_accum 64 x world_size 8 = 1024.
+Pretraining runs 4000 epochs at lr 2e-7 (200-epoch warmup, cosine decay); each task
+head fine-tunes for up to 600 epochs at head lr 1e-5 with the encoder trailing at
+2e-7. fp32 128^3 convolutions are the memory ceiling, not the parameter count
+(62.4M). Expect this to occupy the full node for days, not hours. The dependency set
+is pinned to torch 2.0.1 + cu118 on python 3.9; newer stacks change the 3D
+convolution kernels and shift the third decimal of every metric above.
+
+The _smoke panel (configs/panels/_smoke.yaml) exists only for the test bench; it is
+not a reduced-cost training recipe and must not be used for any reported figure.
+
+
+checkpoints
+-----------
+
+Released panes carry their training seed and tag. A pretrained encoder pane and the
+four fine-tuned task panes are available upon reasonable request; each is published
+with a SHA-256 manifest.

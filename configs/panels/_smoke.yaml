@@ -1,0 +1,47 @@
+tag: smoke
+
+glass:
+  voxel_mm: 0.30
+  patch: [32, 32, 32]
+  cbct_classes: 42
+  fdi_classes: 33
+  region_slots: 8
+  surface_feats: 7
+  points_per_region: 32
+  mask_ratio: 0.6
+  intensity_clip: [-1000.0, 3000.0]
+
+cartoon:
+  vol_stem: 8
+  vol_stages: [8, 16, 24]
+  vol_blocks: 1
+  surf_width: 32
+  surf_depth: 2
+  embed_dim: 24
+  proj_dim: 16
+  fusion_heads: 2
+  fusion_dropout: 0.0
+  use_fusion: true
+
+regimen:
+  world_size: 1
+  precision: fp32
+  amp: false
+  micro_batch: 2
+  grad_accum: 1
+  epochs: 2
+  warmup_epochs: 0
+  lr: 0.005
+  weight_decay: 0.0
+  betas: [0.9, 0.999]
+  grad_clip: 1.0
+  scheduler: constant
+  temperature_init: 0.07
+  modality_dropout: 0.0
+  dropout_onset: 0
+  lambdas:
+    xm: 1.0
+    rec: 0.5
+    cons: 0.3
+  ema_decay: 0.99
+  seed: 7

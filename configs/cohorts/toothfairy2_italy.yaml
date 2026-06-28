@@ -1,0 +1,11 @@
+name: toothfairy2
+region: italy
+modality: cbct
+task: seg_cbct
+volumes: 530
+classes: 42
+voxel_mm: 0.30
+license: CC-BY-4.0
+native_metric: cbct_mean_dice
+held_out: 87
+auxiliary_pretrain: toothfairy_443

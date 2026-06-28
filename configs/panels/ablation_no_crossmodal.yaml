@@ -1,0 +1,7 @@
+tag: ablation_no_crossmodal
+
+regimen:
+  lambdas:
+    xm: 0.0
+    rec: 0.5
+    cons: 0.3
